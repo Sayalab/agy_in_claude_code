@@ -1,5 +1,7 @@
 # antigravity-cli-mcp
 
+[![npm version](https://img.shields.io/npm/v/antigravity-cli-mcp.svg)](https://www.npmjs.com/package/antigravity-cli-mcp)
+
 An MCP (Model Context Protocol) server wrapping the `agy` (antigravity) CLI. This server exposes the capabilities of the `agy` tool to MCP clients like Claude Code, Codex, OpenCode, Cline, Kilocode, Kilo, and other stdio JSON-RPC compatible LLM interfaces.
 
 ## Features
@@ -29,29 +31,30 @@ An MCP (Model Context Protocol) server wrapping the `agy` (antigravity) CLI. Thi
 - **Bun** (v1.0.0 or higher) installed.
 - **agy** (antigravity CLI) binary installed on your system.
 
+### Installation
+
+1. Install globally via npm/bun:
+```bash
+npm install -g antigravity-cli-mcp
+# or
+bun add -g antigravity-cli-mcp
+```
+
+2. Or use directly with npx/bunx without installing:
+```bash
+npx antigravity-cli-mcp
+# or
+bunx antigravity-cli-mcp
+```
+
 ### Registering with Claude Code
 
-#### Development Mode
-
-To run directly from the TypeScript source files with hot-reloading:
-
 ```bash
-cd /path/to/antigravity-cli-mcp
-claude mcp add antigravity-cli-mcp -- bun run src/index.ts
-```
+# Using npm (after global install or via npx)
+claude mcp add antigravity-cli-mcp -- npx antigravity-cli-mcp
 
-#### Production Mode (Built Bundle)
-
-First, build the production bundle:
-
-```bash
-bun run build
-```
-
-Then register the compiled index file:
-
-```bash
-claude mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/dist/index.js
+# Development mode (from source)
+claude mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index.ts
 ```
 
 ### Registering with Codex CLI
@@ -71,12 +74,11 @@ args = ["src/index.ts"]
 To register the server globally so it is available across all directories:
 
 ```bash
-# Development Mode
-codex mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index.ts
+# Using npm (after global install or via npx)
+codex mcp add antigravity-cli-mcp -- npx antigravity-cli-mcp
 
-# Production Mode (Built Bundle)
-bun run build
-codex mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/dist/index.js
+# Development mode (from source)
+codex mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index.ts
 ```
 
 ### Registering with Cline / Kilocode
@@ -97,6 +99,23 @@ Cline and Kilocode store MCP server config in a `cline_mcp_settings.json` file i
 ```
 
 Add the following entry to the `mcpServers` object in the appropriate file:
+
+**Using npm (after global install or via npx):**
+
+```json
+{
+  "mcpServers": {
+    "antigravity-cli-mcp": {
+      "command": "npx",
+      "args": ["-y", "antigravity-cli-mcp"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
+**Development mode (from source):**
 
 ```json
 {
@@ -119,26 +138,12 @@ Kilo is a standalone CLI tool installed at `/opt/homebrew/bin/kilo` (separate fr
 
 To register the server with Kilo:
 
-#### Development Mode
-
-To run directly from the TypeScript source files with hot-reloading:
-
 ```bash
+# Using npm (after global install or via npx)
+kilo mcp add antigravity-cli-mcp -- npx antigravity-cli-mcp
+
+# Development mode (from source)
 kilo mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index.ts
-```
-
-#### Production Mode (Built Bundle)
-
-First, build the production bundle:
-
-```bash
-bun run build
-```
-
-Then register the compiled index file:
-
-```bash
-kilo mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/dist/index.js
 ```
 
 #### Verification
@@ -153,6 +158,19 @@ kilo mcp list
 
 Add to `~/.opencode/opencode.json` (OpenCode reads global config from there):
 
+**Using npm (after global install or via npx):**
+```json
+{
+  "mcp": {
+    "antigravity-cli-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "antigravity-cli-mcp"]
+    }
+  }
+}
+```
+
+**Development mode (from source):**
 ```json
 {
   "mcp": {
