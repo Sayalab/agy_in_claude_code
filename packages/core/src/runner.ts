@@ -1,32 +1,34 @@
 import {
-  AgyNotFoundError,
-  AgyTimeoutError,
-  AgyExitError,
-  AgyConcurrencyError,
-  type RunAgyResult,
+  CliNotFoundError,
+  CliTimeoutError,
+  CliExitError,
+  CliConcurrencyError,
+  type RunCliResult,
 } from "./types.js";
-import { AGY_MAX_CONCURRENT, AGY_MAX_OUTPUT_BYTES } from "./config.js";
-import { AGY_DEBUG } from "./config.js";
 
-interface RunAgyOpts {
-  agyCmdPath: string;
+export interface RunCliOpts {
+  cliCmdPath: string;
   cwd?: string;
   timeoutMs?: number;
   maxConcurrent?: number;
   maxOutputBytes?: number;
+  debug?: boolean;
+  debugPrefix?: string;
   onChunk?: (chunk: string) => void;
 }
 
 let activeCount = 0;
 
-export async function runAgy(args: string[], opts: RunAgyOpts): Promise<RunAgyResult> {
-  const limit = opts.maxConcurrent ?? AGY_MAX_CONCURRENT;
-  const maxBytes = opts.maxOutputBytes ?? AGY_MAX_OUTPUT_BYTES;
+export async function runCli(args: string[], opts: RunCliOpts): Promise<RunCliResult> {
+  const limit = opts.maxConcurrent ?? 3;
+  const maxBytes = opts.maxOutputBytes ?? 1_000_000;
+  const debug = opts.debug ?? false;
+  const prefix = opts.debugPrefix ?? "[mcp-cli]";
 
   activeCount++;
   if (activeCount > limit) {
     activeCount--;
-    throw new AgyConcurrencyError(`Max concurrent agy processes (${limit}) exceeded`);
+    throw new CliConcurrencyError(`Max concurrent CLI processes (${limit}) exceeded`);
   }
 
   let proc: ReturnType<typeof Bun.spawn> | null = null;
@@ -37,7 +39,7 @@ export async function runAgy(args: string[], opts: RunAgyOpts): Promise<RunAgyRe
   try {
     try {
       proc = Bun.spawn({
-        cmd: [opts.agyCmdPath, ...args],
+        cmd: [opts.cliCmdPath, ...args],
         stdin: "ignore",
         stdout: "pipe",
         stderr: "pipe",
@@ -46,7 +48,7 @@ export async function runAgy(args: string[], opts: RunAgyOpts): Promise<RunAgyRe
     } catch (e: unknown) {
       const err = e as { code?: string };
       if (err.code === "ENOENT") {
-        throw new AgyNotFoundError(`agy binary not found: ${opts.agyCmdPath}`);
+        throw new CliNotFoundError(`CLI binary not found: ${opts.cliCmdPath}`);
       }
       throw e;
     }
@@ -120,22 +122,20 @@ export async function runAgy(args: string[], opts: RunAgyOpts): Promise<RunAgyRe
     const stdout = decoder.decode(stdoutBuf);
     const stderr = decoder.decode(stderrBuf);
 
-    if (capped) {
-      if (AGY_DEBUG) {
-        console.error(`[antigravity-mcp] output capped at ${maxBytes} bytes`);
-      }
+    if (capped && debug) {
+      console.error(`${prefix} output capped at ${maxBytes} bytes`);
     }
 
     if (timedOut) {
-      throw new AgyTimeoutError(`agy timed out after ${opts.timeoutMs}ms`, stdout, stderr);
+      throw new CliTimeoutError(`CLI timed out after ${opts.timeoutMs}ms`, stdout, stderr);
     }
 
-    if (AGY_DEBUG && stderr) {
-      console.error(`[antigravity-mcp] [stderr] ${stderr.slice(0, 200)}`);
+    if (debug && stderr) {
+      console.error(`${prefix} [stderr] ${stderr.slice(0, 200)}`);
     }
 
     if (exitCode !== 0) {
-      throw new AgyExitError(`agy exited with code ${exitCode}`, exitCode, stdout, stderr);
+      throw new CliExitError(`CLI exited with code ${exitCode}`, exitCode, stdout, stderr);
     }
 
     return { stdout, stderr, exitCode, timedOut: false };

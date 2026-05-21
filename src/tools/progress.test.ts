@@ -1,5 +1,5 @@
 import { describe, test, expect, mock } from "bun:test";
-import { makeProgressEmitter } from "./progress.js";
+import { makeProgressEmitter } from "mcp-cli-core";
 
 describe("makeProgressEmitter", () => {
   test("returns null when no progressToken", () => {

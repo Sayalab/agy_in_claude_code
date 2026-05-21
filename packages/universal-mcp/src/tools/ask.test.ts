@@ -1,0 +1,87 @@
+import { describe, test, expect } from "bun:test";
+import { askHandler, type AskConfig, type McpExtra } from "./ask.js";
+
+const F = import.meta.dir + "/../../test-fixtures";
+
+const config: AskConfig = {
+  paths: {
+    agy: `${F}/fake-agy.sh`,
+    kilo: `${F}/fake-kilo.sh`,
+    opencode: `${F}/fake-opencode.sh`,
+    codex: `${F}/fake-codex.sh`,
+    hermes: `${F}/fake-hermes.sh`,
+  },
+  timeoutMs: 10_000,
+  workspaceRoot: "/tmp",
+  maxConcurrent: 5,
+  debug: false,
+};
+
+function text(result: Awaited<ReturnType<typeof askHandler>>): string {
+  const item = result.content[0];
+  if (item.type !== "text") throw new Error("expected text content");
+  return item.text;
+}
+
+describe("askHandler", () => {
+  test("via=agy uses --print flag", async () => {
+    const result = await askHandler({ prompt: "hello", via: "agy" }, config);
+    expect(result.isError).toBeUndefined();
+    expect(text(result)).toContain("Hello from fake agy: hello");
+  }, 10_000);
+
+  test("via=kilo uses run subcommand", async () => {
+    const result = await askHandler({ prompt: "hello", via: "kilo" }, config);
+    expect(result.isError).toBeUndefined();
+    expect(text(result)).toContain("Hello from fake kilo: hello");
+  }, 10_000);
+
+  test("via=opencode uses run subcommand", async () => {
+    const result = await askHandler({ prompt: "hello", via: "opencode" }, config);
+    expect(result.isError).toBeUndefined();
+    expect(text(result)).toContain("Hello from fake opencode: hello");
+  }, 10_000);
+
+  test("via=codex uses exec subcommand", async () => {
+    const result = await askHandler({ prompt: "hello", via: "codex" }, config);
+    expect(result.isError).toBeUndefined();
+    expect(text(result)).toContain("Hello from fake codex: hello");
+  }, 10_000);
+
+  test("via=hermes uses chat -q flag", async () => {
+    const result = await askHandler({ prompt: "hello", via: "hermes" }, config);
+    expect(result.isError).toBeUndefined();
+    expect(text(result)).toContain("Hello from fake hermes: hello");
+  }, 10_000);
+
+  test("missing binary → isError with message", async () => {
+    const result = await askHandler(
+      { prompt: "hello", via: "kilo" },
+      { ...config, paths: { ...config.paths, kilo: "/nonexistent/kilo" } }
+    );
+    expect(result.isError).toBe(true);
+  }, 10_000);
+
+  test("timeout → isError with timeout message", async () => {
+    const result = await askHandler(
+      { prompt: "hello", via: "agy", timeout_ms: 1 },
+      config
+    );
+    expect(result.isError).toBe(true);
+    expect(text(result)).toMatch(/timed out/i);
+  }, 10_000);
+
+  test("progress notifications emitted when extra has progressToken", async () => {
+    const notifications: unknown[] = [];
+    const mockExtra = {
+      _meta: { progressToken: "tok-1" },
+      sendNotification: async (n: unknown) => { notifications.push(n); },
+    } as unknown as McpExtra;
+    const result = await askHandler({ prompt: "hello", via: "agy" }, config, mockExtra);
+    expect(result.isError).toBeUndefined();
+    expect(notifications.length).toBeGreaterThan(0);
+    const first = notifications[0] as { method: string; params: { progressToken: string } };
+    expect(first.method).toBe("notifications/progress");
+    expect(first.params.progressToken).toBe("tok-1");
+  }, 10_000);
+});

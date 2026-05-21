@@ -3,6 +3,7 @@ import { askHandler, buildAgyArgs } from "./ask.js";
 import { getTextContent } from "../../tests/helpers.js";
 
 const FAKE_AGY = import.meta.dir + "/../../test-fixtures/fake-agy.sh";
+const SLOW_AGY = import.meta.dir + "/../../test-fixtures/fake-agy-slow.sh";
 
 const FAKE_CONFIG = {
   agyCmdPath: FAKE_AGY,
@@ -50,7 +51,10 @@ describe("askHandler", () => {
   });
 
   test("returns isError on timeout", async () => {
-    const result = await askHandler({ prompt: "x", timeout_ms: 1 }, FAKE_CONFIG);
+    const result = await askHandler(
+      { prompt: "x" },
+      { ...FAKE_CONFIG, agyCmdPath: SLOW_AGY, timeoutMs: 5 }
+    );
     expect(result.isError).toBe(true);
     expect(getTextContent(result)).toMatch(/timed out/i);
   }, 10_000);

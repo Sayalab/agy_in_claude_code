@@ -8,61 +8,54 @@ export function mcpError(text: string): CallToolResult {
   return { content: [{ type: "text", text }], isError: true };
 }
 
-export interface RunAgyOptions {
-  cwd?: string;
-  timeoutMs?: number;
-  addDirs?: string[];
-  env?: Record<string, string>;
-}
-
-export interface RunAgyResult {
+export interface RunCliResult {
   stdout: string;
   stderr: string;
   exitCode: number;
   timedOut: boolean;
 }
 
-export class AgyNotFoundError extends Error {
+export class CliNotFoundError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "AgyNotFoundError";
+    this.name = "CliNotFoundError";
   }
 }
 
-export class AgyTimeoutError extends Error {
+export class CliTimeoutError extends Error {
   stdout: string;
   stderr: string;
   constructor(message: string, stdout: string, stderr: string) {
     super(message);
-    this.name = "AgyTimeoutError";
+    this.name = "CliTimeoutError";
     this.stdout = stdout;
     this.stderr = stderr;
   }
 }
 
-export class AgyExitError extends Error {
+export class CliExitError extends Error {
   exitCode: number;
   stdout: string;
   stderr: string;
   constructor(message: string, exitCode: number, stdout: string, stderr: string) {
     super(message);
-    this.name = "AgyExitError";
+    this.name = "CliExitError";
     this.exitCode = exitCode;
     this.stdout = stdout;
     this.stderr = stderr;
   }
 }
 
-export class AgyConcurrencyError extends Error {
+export class CliConcurrencyError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "AgyConcurrencyError";
+    this.name = "CliConcurrencyError";
   }
 }
 
-export class AgyPathError extends Error {
+export class CliPathError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "AgyPathError";
+    this.name = "CliPathError";
   }
 }

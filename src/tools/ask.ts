@@ -1,10 +1,7 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import { runAgy } from "../runner.js";
-import { AgyTimeoutError } from "../types.js";
-import { mcpText, mcpError } from "../types.js";
-import { makeProgressEmitter } from "./progress.js";
+import { runCli, CliTimeoutError, mcpText, mcpError, makeProgressEmitter } from "mcp-cli-core";
 
 interface AskInput {
   prompt: string;
@@ -61,8 +58,8 @@ export async function askHandler(
   }
 
   try {
-    const result = await runAgy(args, {
-      agyCmdPath: config.agyCmdPath,
+    const result = await runCli(args, {
+      cliCmdPath: config.agyCmdPath,
       cwd: input.cwd ?? config.workspaceRoot,
       timeoutMs,
       maxConcurrent: config.maxConcurrent,
@@ -70,7 +67,7 @@ export async function askHandler(
     });
     return mcpText(result.stdout);
   } catch (e) {
-    if (e instanceof AgyTimeoutError) {
+    if (e instanceof CliTimeoutError) {
       return mcpError(`agy timed out after ${timeoutMs}ms`);
     }
     const message = e instanceof Error ? e.message : String(e);

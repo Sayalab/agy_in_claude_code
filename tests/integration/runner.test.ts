@@ -1,7 +1,5 @@
 import { describe, test, expect, afterAll } from "bun:test";
-import { runAgy } from "../../src/runner.js";
-import { writeHandler } from "../../src/tools/write.js";
-import { AgyExitError, AgyNotFoundError } from "../../src/types.js";
+import { runCli, CliExitError, CliNotFoundError, writeHandler } from "mcp-cli-core";
 import { mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { getTextContent } from "../helpers.js";
@@ -14,41 +12,41 @@ afterAll(() => {
   try { rmSync(workspace, { recursive: true }); } catch {}
 });
 
-describe("integration: runAgy with real fake-agy.sh", () => {
+describe("integration: runCli with real fake-agy.sh", () => {
   test("returns real stdout from --version", async () => {
-    const result = await runAgy(["--version"], { agyCmdPath: FAKE_AGY });
+    const result = await runCli(["--version"], { cliCmdPath: FAKE_AGY });
     expect(result.stdout.trim()).toBe("1.0.0");
     expect(result.exitCode).toBe(0);
     expect(result.timedOut).toBe(false);
   });
 
   test("returns real stdout from --print", async () => {
-    const result = await runAgy(["--print", "world"], { agyCmdPath: FAKE_AGY });
+    const result = await runCli(["--print", "world"], { cliCmdPath: FAKE_AGY });
     expect(result.stdout).toContain("Hello from fake agy: world");
   });
 
-  test("throws AgyExitError with real exit code 1", async () => {
+  test("throws CliExitError with real exit code 1", async () => {
     try {
-      await runAgy(["--bad"], { agyCmdPath: FAKE_AGY });
+      await runCli(["--bad"], { cliCmdPath: FAKE_AGY });
       expect(true).toBe(false);
     } catch (e) {
-      expect(e).toBeInstanceOf(AgyExitError);
-      expect((e as AgyExitError).exitCode).toBe(1);
+      expect(e).toBeInstanceOf(CliExitError);
+      expect((e as CliExitError).exitCode).toBe(1);
     }
   });
 
-  test("throws AgyNotFoundError for missing binary", async () => {
+  test("throws CliNotFoundError for missing binary", async () => {
     await expect(
-      runAgy(["--version"], { agyCmdPath: "/no/such/binary" })
-    ).rejects.toBeInstanceOf(AgyNotFoundError);
+      runCli(["--version"], { cliCmdPath: "/no/such/binary" })
+    ).rejects.toBeInstanceOf(CliNotFoundError);
   });
 });
 
 describe("integration: streaming onChunk with real subprocess", () => {
   test("receives multiple chunks from slow agy", async () => {
     const chunks: string[] = [];
-    await runAgy(["--print", "x"], {
-      agyCmdPath: SLOW_AGY,
+    await runCli(["--print", "x"], {
+      cliCmdPath: SLOW_AGY,
       onChunk: (c) => chunks.push(c),
     });
     const text = chunks.join("");
@@ -60,8 +58,8 @@ describe("integration: streaming onChunk with real subprocess", () => {
 
   test("final result matches accumulated chunks", async () => {
     const chunks: string[] = [];
-    const result = await runAgy(["--print", "x"], {
-      agyCmdPath: SLOW_AGY,
+    const result = await runCli(["--print", "x"], {
+      cliCmdPath: SLOW_AGY,
       onChunk: (c) => chunks.push(c),
     });
     expect(result.stdout).toBe(chunks.join(""));

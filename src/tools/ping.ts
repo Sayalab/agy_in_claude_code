@@ -1,7 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { runAgy } from "../runner.js";
-import { AgyNotFoundError } from "../types.js";
-import { mcpText, mcpError } from "../types.js";
+import { runCli, CliNotFoundError, mcpText, mcpError } from "mcp-cli-core";
 
 interface PingConfig {
   agyCmdPath: string;
@@ -10,7 +8,7 @@ interface PingConfig {
 
 export async function pingHandler(config: PingConfig): Promise<CallToolResult> {
   try {
-    const result = await runAgy(["--version"], { agyCmdPath: config.agyCmdPath });
+    const result = await runCli(["--version"], { cliCmdPath: config.agyCmdPath });
     const version = result.stdout.trim();
     const text = [
       `agy version: ${version}`,
@@ -20,7 +18,7 @@ export async function pingHandler(config: PingConfig): Promise<CallToolResult> {
     ].join("\n");
     return mcpText(text);
   } catch (e) {
-    if (e instanceof AgyNotFoundError) {
+    if (e instanceof CliNotFoundError) {
       return mcpError(`agy binary not found: ${config.agyCmdPath}`);
     }
     const message = e instanceof Error ? e.message : String(e);
