@@ -1,0 +1,3 @@
+[mcp_servers.antigravity-cli-mcp]
+command = "bun"
+args = ["src/index.ts"]

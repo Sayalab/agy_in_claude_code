@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "code-review-graph": {
+      "command": "uvx",
+      "args": [
+        "code-review-graph",
+        "serve"
+      ],
+      "type": "stdio",
+      "env": []
+    },
+    "antigravity-cli-mcp": {
+      "command": "bun",
+      "args": [
+        "src/index.ts"
+      ],
+      "type": "stdio"
+    }
+  }
+}
