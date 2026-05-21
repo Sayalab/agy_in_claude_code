@@ -31,5 +31,11 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "prepublishOnly": "bun run build"
-  }
+  },
+  "files": [
+    "dist/index.js",
+    "src/index.ts",
+    "README.md",
+    "LICENSE"
+  ]
 }
