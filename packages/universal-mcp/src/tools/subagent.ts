@@ -40,7 +40,11 @@ export function makeSubHandler(via: CliName, config: AskConfig) {
     askHandler({ ...input, via }, config, extra as McpExtra)
       .then((result) => {
         const text = (result.content[0] as { type: string; text: string }).text;
-        jobs.set(id, { status: "done", result: text, cli: via, startedAt, completedAt: Date.now() });
+        if (result.isError) {
+          jobs.set(id, { status: "error", error: text, cli: via, startedAt, completedAt: Date.now() });
+        } else {
+          jobs.set(id, { status: "done", result: text, cli: via, startedAt, completedAt: Date.now() });
+        }
       })
       .catch((e: unknown) => {
         jobs.set(id, {

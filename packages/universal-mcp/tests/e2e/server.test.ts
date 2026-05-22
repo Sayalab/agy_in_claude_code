@@ -395,6 +395,29 @@ describe("e2e: universal MCP server", () => {
     expect(toolText(resp)).toContain("not found");
   }, 15_000);
 
+  test("sub-agy with missing binary → job status is error, not done", async () => {
+    server = startServer({ AGY_PATH: "/nonexistent/agy" });
+    await initializeMcp(server);
+    const subResp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "sub-agy", arguments: { prompt: "hello" } },
+    });
+    const subText = toolText(subResp);
+    const match = subText.match(/Job (\S+) started/);
+    expect(match).toBeTruthy();
+    const jobId = match![1];
+
+    await new Promise((r) => setTimeout(r, 500));
+
+    const resultResp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "get-result", arguments: { job_id: jobId } },
+    });
+    expect(resultResp.error).toBeUndefined();
+    const out = toolText(resultResp);
+    expect(out).toContain("failed");
+  }, 15_000);
+
   test("ask-agy passes cwd as --add-dir flag", async () => {
     server = startServer();
     await initializeMcp(server);
