@@ -1,6 +1,6 @@
 {
   "name": "universal-ai-cli-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Universal MCP server — exposes agy, kilo, opencode, codex, and hermes AI CLI tools in a single MCP server",
   "type": "module",
   "bin": {
@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "build": "bun build src/index.ts --target bun --outfile dist/index.js",
+    "build": "bun build src/index.ts --target bun --outfile dist/index.js --banner \"#!/usr/bin/env bun\"",
     "start": "bun run dist/index.js",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
