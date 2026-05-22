@@ -335,6 +335,55 @@ describe("e2e: universal MCP server", () => {
     expect(resultResp.error).toBeUndefined();
     expect(toolText(resultResp)).toContain("--dangerously-skip-permissions");
   }, 15_000);
+
+  test("sub-agy passes cwd as --add-dir to background job", async () => {
+    server = startServer();
+    await initializeMcp(server);
+    const subResp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "sub-agy", arguments: { prompt: "hello", cwd: "/tmp" } },
+    });
+    const subText = toolText(subResp);
+    const match = subText.match(/Job (\S+) started/);
+    expect(match).toBeTruthy();
+    const jobId = match![1];
+
+    await new Promise((r) => setTimeout(r, 500));
+
+    const resultResp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "get-result", arguments: { job_id: jobId } },
+    });
+    expect(resultResp.error).toBeUndefined();
+    const out = toolText(resultResp);
+    expect(out).toContain("--add-dir");
+    expect(out).toContain("/tmp");
+  }, 15_000);
+
+  test("sub-agy passes timeout_ms as --print-timeout to background job", async () => {
+    server = startServer();
+    await initializeMcp(server);
+    const subResp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "sub-agy", arguments: { prompt: "hello", timeout_ms: 5000 } },
+    });
+    const subText = toolText(subResp);
+    const match = subText.match(/Job (\S+) started/);
+    expect(match).toBeTruthy();
+    const jobId = match![1];
+
+    await new Promise((r) => setTimeout(r, 500));
+
+    const resultResp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "get-result", arguments: { job_id: jobId } },
+    });
+    expect(resultResp.error).toBeUndefined();
+    const out = toolText(resultResp);
+    expect(out).toContain("--print-timeout");
+    expect(out).toContain("5s");
+  }, 15_000);
+
   test("get-result unknown job → not found message", async () => {
     server = startServer();
     await initializeMcp(server);
