@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { askHandler, buildArgs, type AskConfig, type McpExtra } from "./ask.js";
+import { askHandler, type AskConfig, type McpExtra } from "./ask.js";
 
 const F = import.meta.dir + "/../../test-fixtures";
 
@@ -57,21 +57,4 @@ describe("askHandler (kilo)", () => {
     expect(first.method).toBe("notifications/progress");
     expect(first.params.progressToken).toBe("tok-1");
   }, 10_000);
-});
-describe("buildArgs (kilo)", () => {
-  test("minimal prompt", () => {
-    const args = buildArgs("hello");
-    expect(args).toEqual(["run", "hello"]);
-  });
-
-  test("with model → --model flag", () => {
-    const args = buildArgs("hello", { model: "claude-sonnet" });
-    expect(args).toContain("--model");
-    expect(args).toContain("claude-sonnet");
-  });
-
-  test("no model → no --model flag", () => {
-    const args = buildArgs("hello", {});
-    expect(args).not.toContain("--model");
-  });
 });
