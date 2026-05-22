@@ -18,7 +18,7 @@ import { pingHandler } from "./tools/ping.js";
 import { askHandler, type CliName } from "./tools/ask.js";
 import { usageHandler } from "./tools/usage.js";
 
-const server = new McpServer({ name: "universal-ai-cli-mcp", version: "1.0.0" });
+const server = new McpServer({ name: "universal-ai-cli-mcp", version: "1.0.2" });
 
 const paths = {
   agy: AGY_PATH,
@@ -36,112 +36,79 @@ const askConfig = {
   debug: DEBUG,
 };
 
-const CLI_NAMES = ["agy", "kilo", "opencode", "codex", "hermes"] as const;
+const sharedAskInput = {
+  prompt: z.string().max(10_000).describe("The prompt to send"),
+  cwd: z.string().optional().describe("Working directory override"),
+  timeout_ms: z.number().int().min(1000).max(600_000).optional().describe("Timeout in ms"),
+  model: z.string().optional().describe("Model override (e.g. 'anthropic/claude-sonnet-4' for kilo/opencode/hermes, 'o3' for codex)"),
+};
 
-server.registerTool(
-  "get-usage",
-  {
-    description:
-      "Get token usage and cost statistics for all AI CLI tools. " +
-      "Shows stats for kilo, opencode, and hermes. " +
-      "Warns when free tier tokens are exhausted. " +
-      "codex and agy do not expose usage data.",
-    inputSchema: {},
+function makeAskHandler(via: CliName) {
+  return (input: { prompt: string; cwd?: string; timeout_ms?: number; model?: string; max_turns?: number }, extra: unknown) =>
+    askHandler({ ...input, via }, askConfig, extra as Parameters<typeof askHandler>[2]);
+}
+
+server.registerTool("get-usage", {
+  description: "Get token usage and cost statistics for kilo, opencode, and hermes. codex and agy do not expose usage data.",
+  inputSchema: {},
+}, () => usageHandler(paths));
+
+server.registerTool("ping", {
+  description: "Check health and version of all AI CLI tools (agy, kilo, opencode, codex, hermes)",
+  inputSchema: {},
+}, () => pingHandler({ ...paths, workspaceRoot: WORKSPACE_ROOT }));
+
+server.registerTool("ask-agy", {
+  description: "Run a prompt with agy (antigravity) non-interactively.",
+  inputSchema: sharedAskInput,
+}, makeAskHandler("agy"));
+
+server.registerTool("ask-kilo", {
+  description: "Run a prompt with kilo (kilocode) non-interactively.",
+  inputSchema: { ...sharedAskInput, model: z.string().optional().describe("Model override (e.g. 'anthropic/claude-sonnet-4')") },
+}, makeAskHandler("kilo"));
+
+server.registerTool("ask-opencode", {
+  description: "Run a prompt with opencode non-interactively.",
+  inputSchema: { ...sharedAskInput, model: z.string().optional().describe("Model override (e.g. 'anthropic/claude-sonnet-4')") },
+}, makeAskHandler("opencode"));
+
+server.registerTool("ask-codex", {
+  description: "Run a prompt with codex (OpenAI Codex CLI) non-interactively.",
+  inputSchema: { ...sharedAskInput, model: z.string().optional().describe("Model override (e.g. 'o3', 'o4-mini')") },
+}, makeAskHandler("codex"));
+
+server.registerTool("ask-hermes", {
+  description: "Run a prompt with hermes non-interactively.",
+  inputSchema: {
+    ...sharedAskInput,
+    model: z.string().optional().describe("Model override (e.g. 'anthropic/claude-sonnet-4')"),
+    max_turns: z.number().int().min(1).max(200).optional().describe("Max tool-calling iterations"),
   },
-  () => usageHandler(paths)
+}, (input, extra) => makeAskHandler("hermes")(input, extra));
+
+server.registerTool("search-web", {
+  description: "Search the web using agy. Results are AI-generated.",
+  inputSchema: {
+    query: z.string().max(500).describe("The search query"),
+  },
+}, (input, extra) =>
+  askHandler(
+    { prompt: `Search the web for: ${input.query}`, via: "agy", timeout_ms: SEARCH_TIMEOUT_MS },
+    askConfig,
+    extra as Parameters<typeof askHandler>[2]
+  )
 );
 
-server.registerTool(
-  "ping",
-  {
-    description: "Check health and version of all AI CLI tools (agy, kilo, opencode, codex, hermes)",
-    inputSchema: {},
+server.registerTool("write-file", {
+  description: "Write exact content to a file within the workspace. Path must be relative or within the workspace root.",
+  inputSchema: {
+    path: z.string().describe("File path (relative to workspace root)"),
+    content: z.string().max(500_000).describe("Exact content to write"),
+    create_parents: z.boolean().default(false).describe("Create parent directories if missing"),
   },
-  () => pingHandler({ ...paths, workspaceRoot: WORKSPACE_ROOT })
-);
-
-server.registerTool(
-  "ask",
-  {
-    description:
-      "Run a prompt with any AI CLI tool non-interactively. Choose `via` to select which tool to use.",
-    inputSchema: {
-      prompt: z.string().max(10_000).describe("The prompt to send"),
-      via: z
-        .enum(CLI_NAMES)
-        .describe(
-          "Which AI CLI to use: agy (antigravity), kilo (kilocode), opencode, codex (OpenAI), hermes"
-        ),
-      cwd: z.string().optional().describe("Working directory override"),
-      timeout_ms: z.number().int().min(1000).max(600_000).optional().describe("Timeout in ms"),
-      model: z
-        .string()
-        .optional()
-        .describe("Model override — syntax varies by tool (e.g. 'anthropic/claude-sonnet-4' for kilo/opencode/hermes, 'o3' for codex)"),
-      max_turns: z
-        .number()
-        .int()
-        .min(1)
-        .max(200)
-        .optional()
-        .describe("Max tool-calling iterations (hermes only)"),
-    },
-  },
-  (input, extra) =>
-    askHandler(
-      {
-        prompt: input.prompt,
-        via: input.via as CliName,
-        cwd: input.cwd,
-        timeout_ms: input.timeout_ms,
-        model: input.model,
-        max_turns: input.max_turns,
-      },
-      askConfig,
-      extra
-    )
-);
-
-server.registerTool(
-  "search-web",
-  {
-    description: "Search the web using any AI CLI tool. Results are AI-generated, not a deterministic API.",
-    inputSchema: {
-      query: z.string().max(500).describe("The search query"),
-      via: z
-        .enum(CLI_NAMES)
-        .default("agy")
-        .describe("Which AI CLI to use for the search"),
-    },
-  },
-  (input, extra) =>
-    askHandler(
-      {
-        prompt: `Search the web for: ${input.query}`,
-        via: (input.via ?? "agy") as CliName,
-        timeout_ms: SEARCH_TIMEOUT_MS,
-      },
-      askConfig,
-      extra
-    )
-);
-
-server.registerTool(
-  "write-file",
-  {
-    description:
-      "Write exact content to a file within the workspace. Path must be relative or within the workspace root.",
-    inputSchema: {
-      path: z.string().describe("File path (relative to workspace root)"),
-      content: z.string().max(500_000).describe("Exact content to write"),
-      create_parents: z.boolean().default(false).describe("Create parent directories if missing"),
-    },
-  },
-  (input) =>
-    writeHandler(
-      { path: input.path, content: input.content, create_parents: input.create_parents },
-      WORKSPACE_ROOT
-    )
+}, (input) =>
+  writeHandler({ path: input.path, content: input.content, create_parents: input.create_parents }, WORKSPACE_ROOT)
 );
 
 const transport = new StdioServerTransport();

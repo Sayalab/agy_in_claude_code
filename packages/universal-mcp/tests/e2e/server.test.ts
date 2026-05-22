@@ -19,14 +19,18 @@ function toolText(response: Awaited<ReturnType<typeof sendJsonRpc>>): string {
 }
 
 describe("e2e: universal MCP server", () => {
-  test("tools/list returns all 5 tools", async () => {
+  test("tools/list returns all expected tools", async () => {
     server = startServer();
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, { method: "tools/list", params: {} });
     expect(resp.error).toBeUndefined();
     const names = (resp.result as { tools: { name: string }[] }).tools.map((t) => t.name);
     expect(names).toContain("ping");
-    expect(names).toContain("ask");
+    expect(names).toContain("ask-agy");
+    expect(names).toContain("ask-kilo");
+    expect(names).toContain("ask-opencode");
+    expect(names).toContain("ask-codex");
+    expect(names).toContain("ask-hermes");
     expect(names).toContain("search-web");
     expect(names).toContain("write-file");
     expect(names).toContain("get-usage");
@@ -45,51 +49,51 @@ describe("e2e: universal MCP server", () => {
     expect(out).toContain("✓ hermes");
   }, 15_000);
 
-  test("ask via=agy returns fake agy response", async () => {
+  test("ask-agy returns fake agy response", async () => {
     server = startServer();
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
       method: "tools/call",
-      params: { name: "ask", arguments: { prompt: "hello", via: "agy" } },
+      params: { name: "ask-agy", arguments: { prompt: "hello" } },
     });
     expect(resp.error).toBeUndefined();
     expect(toolText(resp)).toContain("Hello from fake agy: hello");
   }, 15_000);
 
-  test("ask via=kilo returns fake kilo response", async () => {
+  test("ask-kilo returns fake kilo response", async () => {
     server = startServer();
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
       method: "tools/call",
-      params: { name: "ask", arguments: { prompt: "hello", via: "kilo" } },
+      params: { name: "ask-kilo", arguments: { prompt: "hello" } },
     });
     expect(resp.error).toBeUndefined();
     expect(toolText(resp)).toContain("Hello from fake kilo: hello");
   }, 15_000);
 
-  test("ask via=codex returns fake codex response", async () => {
+  test("ask-codex returns fake codex response", async () => {
     server = startServer();
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
       method: "tools/call",
-      params: { name: "ask", arguments: { prompt: "hello", via: "codex" } },
+      params: { name: "ask-codex", arguments: { prompt: "hello" } },
     });
     expect(resp.error).toBeUndefined();
     expect(toolText(resp)).toContain("Hello from fake codex: hello");
   }, 15_000);
 
-  test("ask via=hermes returns fake hermes response", async () => {
+  test("ask-hermes returns fake hermes response", async () => {
     server = startServer();
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
       method: "tools/call",
-      params: { name: "ask", arguments: { prompt: "hello", via: "hermes" } },
+      params: { name: "ask-hermes", arguments: { prompt: "hello" } },
     });
     expect(resp.error).toBeUndefined();
     expect(toolText(resp)).toContain("Hello from fake hermes: hello");
   }, 15_000);
 
-  test("search-web delegates prompt to default via=agy", async () => {
+  test("search-web delegates to agy", async () => {
     server = startServer();
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
@@ -122,8 +126,7 @@ describe("e2e: universal MCP server", () => {
       params: { name: "get-usage", arguments: {} },
     });
     expect(resp.error).toBeUndefined();
-    const out = toolText(resp);
-    expect(out).toContain("Free token limit likely exhausted");
+    expect(toolText(resp)).toContain("Free token limit likely exhausted");
   }, 15_000);
 
   test("write-file writes to workspace", async () => {
@@ -133,10 +136,7 @@ describe("e2e: universal MCP server", () => {
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
       method: "tools/call",
-      params: {
-        name: "write-file",
-        arguments: { path: "hello.txt", content: "world", create_parents: false },
-      },
+      params: { name: "write-file", arguments: { path: "hello.txt", content: "world", create_parents: false } },
     });
     expect(resp.error).toBeUndefined();
     expect(toolText(resp)).toContain("Written");
@@ -150,12 +150,8 @@ describe("e2e: universal MCP server", () => {
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
       method: "tools/call",
-      params: {
-        name: "write-file",
-        arguments: { path: "../../etc/passwd", content: "x", create_parents: false },
-      },
+      params: { name: "write-file", arguments: { path: "../../etc/passwd", content: "x", create_parents: false } },
     });
-    expect(resp.error).toBeUndefined();
     const result = resp.result as { isError: boolean; content: Array<{ text: string }> };
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain("escapes workspace");
@@ -168,13 +164,8 @@ describe("e2e: universal MCP server", () => {
     await initializeMcp(server);
     const resp = await sendJsonRpc(server, {
       method: "tools/call",
-      params: {
-        name: "write-file",
-        arguments: { path: "missing/sub/file.txt", content: "x", create_parents: false },
-      },
+      params: { name: "write-file", arguments: { path: "missing/sub/file.txt", content: "x", create_parents: false } },
     });
-    expect(resp.error).toBeUndefined();
-    const result = resp.result as { isError: boolean };
-    expect(result.isError).toBe(true);
+    expect((resp.result as { isError: boolean }).isError).toBe(true);
   }, 15_000);
 });
