@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { askHandler, type AskConfig } from "./ask.js";
+import { askHandler, type AskConfig, type McpExtra } from "./ask.js";
 
 const F = import.meta.dir + "/../../test-fixtures";
 
@@ -42,5 +42,19 @@ describe("askHandler (opencode)", () => {
     const result = await askHandler({ prompt: "hello", timeout_ms: 1 }, config);
     expect(result.isError).toBe(true);
     expect(text(result)).toMatch(/timed out/i);
+  }, 10_000);
+
+  test("progress notifications emitted when extra has progressToken", async () => {
+    const notifications: unknown[] = [];
+    const mockExtra = {
+      _meta: { progressToken: "tok-1" },
+      sendNotification: async (n: unknown) => { notifications.push(n); },
+    } as unknown as McpExtra;
+    const result = await askHandler({ prompt: "hello" }, config, mockExtra);
+    expect(result.isError).toBeUndefined();
+    expect(notifications.length).toBeGreaterThan(0);
+    const first = notifications[0] as { method: string; params: { progressToken: string } };
+    expect(first.method).toBe("notifications/progress");
+    expect(first.params.progressToken).toBe("tok-1");
   }, 10_000);
 });
