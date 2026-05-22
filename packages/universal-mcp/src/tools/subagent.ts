@@ -29,7 +29,7 @@ function newJobId(): string {
 
 export function makeSubHandler(via: CliName, config: AskConfig) {
   return (
-    input: { prompt: string; cwd?: string; timeout_ms?: number; model?: string; max_turns?: number },
+    input: { prompt: string; cwd?: string; timeout_ms?: number; model?: string; max_turns?: number; add_dirs?: string[]; skip_permissions?: boolean },
     extra: unknown
   ): CallToolResult => {
     cleanupExpired();

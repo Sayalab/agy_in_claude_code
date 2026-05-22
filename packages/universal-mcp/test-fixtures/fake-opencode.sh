@@ -5,6 +5,7 @@ if [[ "$1" == "--version" ]]; then
 fi
 if [[ "$1" == "run" ]]; then
   echo "Hello from fake opencode: $2"
+  echo "args: $*"
   exit 0
 fi
 if [[ "$1" == "stats" ]]; then

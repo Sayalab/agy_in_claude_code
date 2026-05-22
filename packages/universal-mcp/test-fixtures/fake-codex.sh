@@ -5,6 +5,7 @@ if [[ "$1" == "--version" ]]; then
 fi
 if [[ "$1" == "exec" ]]; then
   echo "Hello from fake codex: $2"
+  echo "args: $*"
   exit 0
 fi
 exit 1
