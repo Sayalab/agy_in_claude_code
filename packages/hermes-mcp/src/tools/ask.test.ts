@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { askHandler, type AskConfig, type McpExtra } from "./ask.js";
+import { askHandler, buildArgs, type AskConfig, type McpExtra } from "./ask.js";
 
 const F = import.meta.dir + "/../../test-fixtures";
 
@@ -63,4 +63,27 @@ describe("askHandler (hermes)", () => {
     expect(first.method).toBe("notifications/progress");
     expect(first.params.progressToken).toBe("tok-1");
   }, 10_000);
+});
+describe("buildArgs (hermes)", () => {
+  test("minimal prompt", () => {
+    const args = buildArgs("hello");
+    expect(args).toEqual(["chat", "-q", "hello", "-Q"]);
+  });
+
+  test("with model → --model flag", () => {
+    const args = buildArgs("hello", { model: "MiniMax" });
+    expect(args).toContain("--model");
+    expect(args).toContain("MiniMax");
+  });
+
+  test("with max_turns → --max-turns flag", () => {
+    const args = buildArgs("hello", { max_turns: 5 });
+    expect(args).toContain("--max-turns");
+    expect(args).toContain("5");
+  });
+
+  test("no model → no --model flag", () => {
+    const args = buildArgs("hello", {});
+    expect(args).not.toContain("--model");
+  });
 });
