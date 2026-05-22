@@ -69,4 +69,17 @@ describe("e2e: opencode-cli-mcp server", () => {
     expect(toolText(resp)).toContain("Written");
     expect(await Bun.file(`${tmpDir}/hello.txt`).text()).toBe("world");
   }, 15_000);
+
+  test("ask-opencode passes model as --model flag", async () => {
+    server = startServer();
+    await initializeMcp(server);
+    const resp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "ask-opencode", arguments: { prompt: "hello", model: "gpt-4o" } },
+    });
+    expect(resp.error).toBeUndefined();
+    const out = toolText(resp);
+    expect(out).toContain("--model");
+    expect(out).toContain("gpt-4o");
+  }, 15_000);
 });

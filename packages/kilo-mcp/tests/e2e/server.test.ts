@@ -71,4 +71,17 @@ describe("e2e: kilo-cli-mcp server", () => {
     expect(toolText(resp)).toContain("Written");
     expect(await Bun.file(`${tmpDir}/hello.txt`).text()).toBe("world");
   }, 15_000);
+
+  test("ask-kilo passes model as --model flag", async () => {
+    server = startServer();
+    await initializeMcp(server);
+    const resp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "ask-kilo", arguments: { prompt: "hello", model: "claude-sonnet" } },
+    });
+    expect(resp.error).toBeUndefined();
+    const out = toolText(resp);
+    expect(out).toContain("--model");
+    expect(out).toContain("claude-sonnet");
+  }, 15_000);
 });

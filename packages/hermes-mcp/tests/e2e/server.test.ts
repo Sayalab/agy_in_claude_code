@@ -69,4 +69,30 @@ describe("e2e: hermes-cli-mcp server", () => {
     expect(toolText(resp)).toContain("Written");
     expect(await Bun.file(`${tmpDir}/hello.txt`).text()).toBe("world");
   }, 15_000);
+
+  test("ask-hermes passes model as --model flag", async () => {
+    server = startServer();
+    await initializeMcp(server);
+    const resp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "ask-hermes", arguments: { prompt: "hello", model: "MiniMax" } },
+    });
+    expect(resp.error).toBeUndefined();
+    const out = toolText(resp);
+    expect(out).toContain("--model");
+    expect(out).toContain("MiniMax");
+  }, 15_000);
+
+  test("ask-hermes passes max_turns as --max-turns flag", async () => {
+    server = startServer();
+    await initializeMcp(server);
+    const resp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "ask-hermes", arguments: { prompt: "hello", max_turns: 5 } },
+    });
+    expect(resp.error).toBeUndefined();
+    const out = toolText(resp);
+    expect(out).toContain("--max-turns");
+    expect(out).toContain("5");
+  }, 15_000);
 });

@@ -69,4 +69,17 @@ describe("e2e: codex-cli-mcp server", () => {
     expect(toolText(resp)).toContain("Written");
     expect(await Bun.file(`${tmpDir}/hello.txt`).text()).toBe("world");
   }, 15_000);
+
+  test("ask-codex passes model as -c model= flag", async () => {
+    server = startServer();
+    await initializeMcp(server);
+    const resp = await sendJsonRpc(server, {
+      method: "tools/call",
+      params: { name: "ask-codex", arguments: { prompt: "hello", model: "o3" } },
+    });
+    expect(resp.error).toBeUndefined();
+    const out = toolText(resp);
+    expect(out).toContain("-c");
+    expect(out).toContain('model="o3"');
+  }, 15_000);
 });
