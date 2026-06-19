@@ -34,11 +34,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sayalabs/sayalabs-mcp.git"
+    "url": "git+https://github.com/Sayalab/agy_in_claude_code.git"
   },
-  "homepage": "https://github.com/sayalabs/sayalabs-mcp#readme",
+  "homepage": "https://github.com/Sayalab/agy_in_claude_code#readme",
   "bugs": {
-    "url": "https://github.com/sayalabs/sayalabs-mcp/issues"
+    "url": "https://github.com/Sayalab/agy_in_claude_code/issues"
   },
   "engines": {
     "bun": ">=1.0.0"

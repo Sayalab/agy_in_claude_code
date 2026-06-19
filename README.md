@@ -281,7 +281,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. **Clone the repository:**
    ```bash
-   git clone git@github.com:sayalabs/sayalabs-mcp.git
+   git clone git@github.com:Sayalab/agy_in_claude_code.git
    cd sayalabs-mcp
    ```
 

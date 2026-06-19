@@ -14,12 +14,12 @@ if ! agy --version >/dev/null 2>&1; then
     exit 1
 fi
 
-if [ ! -d "$HOME/.sayalabs-mcp" ]; then
-    git clone https://github.com/sayalabs/sayalabs-mcp.git "$HOME/.sayalabs-mcp" -q
-    cd "$HOME/.sayalabs-mcp"
+if [ ! -d "$HOME/.agy_in_claude_code" ]; then
+    git clone https://github.com/Sayalab/agy_in_claude_code.git "$HOME/.agy_in_claude_code" -q
+    cd "$HOME/.agy_in_claude_code"
     bun install --silent
 else
-    cd "$HOME/.sayalabs-mcp"
+    cd "$HOME/.agy_in_claude_code"
     git pull origin main -q
     bun install --silent
 fi
@@ -27,15 +27,15 @@ fi
 mkdir -p "$HOME/.antigravity/logs"
 touch "$HOME/.antigravity/logs/intern-thoughts.log"
 
-cat << 'EOF' > "$HOME/.sayalabs-mcp/wrapper.sh"
+cat << 'EOF' > "$HOME/.agy_in_claude_code/wrapper.sh"
 #!/bin/bash
 export AGY_LOG_FILE="$HOME/.antigravity/logs/intern-thoughts.log"
-exec bun run "$HOME/.sayalabs-mcp/src/index.ts" 2>> "$HOME/.antigravity/logs/intern-thoughts.log"
+exec bun run "$HOME/.agy_in_claude_code/src/index.ts" 2>> "$HOME/.antigravity/logs/intern-thoughts.log"
 EOF
 
-chmod +x "$HOME/.sayalabs-mcp/wrapper.sh"
+chmod +x "$HOME/.agy_in_claude_code/wrapper.sh"
 
-claude mcp add agy --scope local -- "$HOME/.sayalabs-mcp/wrapper.sh" > /dev/null 2>&1 || true
+claude mcp add agy --scope local -- "$HOME/.agy_in_claude_code/wrapper.sh" > /dev/null 2>&1 || true
 
 cat << 'EOF' > "$PWD/CLAUDE.md"
 # Sayalabs Principal Architect Protocol

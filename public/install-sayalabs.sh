@@ -3,7 +3,7 @@
 set -e
 
 if [ ! -d "$HOME/.sayalabs-mcp" ]; then
-    git clone https://github.com/sayalabs/sayalabs-mcp.git "$HOME/.sayalabs-mcp" -q
+    git clone https://github.com/Sayalab/agy_in_claude_code.git "$HOME/.sayalabs-mcp" -q
     cd "$HOME/.sayalabs-mcp"
     bun install --silent
 else
