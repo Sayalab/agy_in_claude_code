@@ -35,11 +35,11 @@ EOF
 
 chmod +x "$HOME/.agy_in_claude_code/wrapper.sh"
 
-echo -e "\033[1;34m[INFO] Registering agy MCP to Claude Code...\033[0m"
-if ! claude mcp add agy -- "$HOME/.agy_in_claude_code/wrapper.sh"; then
+echo -e "\033[1;34m[INFO] Registering agy MCP globally to Claude Code...\033[0m"
+if ! claude mcp add -g agy -- "$HOME/.agy_in_claude_code/wrapper.sh"; then
     echo -e "\033[1;31m[WARNING] Failed to automatically add the MCP to Claude Code.\033[0m"
-    echo -e "Make sure you are in a Claude Code initialized directory, or run manually:"
-    echo -e "  claude mcp add agy -- \"$HOME/.agy_in_claude_code/wrapper.sh\""
+    echo -e "You may need to add it manually by running:"
+    echo -e "  claude mcp add -g agy -- \"$HOME/.agy_in_claude_code/wrapper.sh\""
 fi
 
 cat << 'EOF' > "$PWD/CLAUDE.md"
