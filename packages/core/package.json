@@ -13,7 +13,7 @@
     "ai",
     "cli"
   ],
-  "author": "Nadim Tuhin <nadimtuhin@gmail.com>",
+  "author": "Sayalabs <info@sayalabs.com>",
   "license": "MIT",
   "engines": {
     "bun": ">=1.0.0"

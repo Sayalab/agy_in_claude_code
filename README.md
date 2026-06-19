@@ -1,6 +1,6 @@
-# antigravity-cli-mcp
+# sayalabs-mcp
 
-[![npm version](https://img.shields.io/npm/v/antigravity-cli-mcp.svg)](https://www.npmjs.com/package/antigravity-cli-mcp)
+[![npm version](https://img.shields.io/npm/v/sayalabs-mcp.svg)](https://www.npmjs.com/package/sayalabs-mcp)
 
 An MCP (Model Context Protocol) server wrapping the `agy` (antigravity) CLI. This server exposes the capabilities of the `agy` tool to MCP clients like Claude Code, Codex, OpenCode, Cline, Kilocode, Kilo, and other stdio JSON-RPC compatible LLM interfaces.
 
@@ -35,26 +35,26 @@ An MCP (Model Context Protocol) server wrapping the `agy` (antigravity) CLI. Thi
 
 1. Install globally via npm/bun:
 ```bash
-npm install -g antigravity-cli-mcp
+npm install -g sayalabs-mcp
 # or
-bun add -g antigravity-cli-mcp
+bun add -g sayalabs-mcp
 ```
 
 2. Or use directly with npx/bunx without installing:
 ```bash
-npx antigravity-cli-mcp
+npx sayalabs-mcp
 # or
-bunx antigravity-cli-mcp
+bunx sayalabs-mcp
 ```
 
 ### Registering with Claude Code
 
 ```bash
 # Using npm (after global install or via npx)
-claude mcp add antigravity-cli-mcp -- npx antigravity-cli-mcp
+claude mcp add sayalabs-mcp -- npx sayalabs-mcp
 
 # Development mode (from source)
-claude mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index.ts
+claude mcp add sayalabs-mcp -- bun /path/to/sayalabs-mcp/src/index.ts
 ```
 
 ### Registering with Codex CLI
@@ -64,7 +64,7 @@ claude mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index
 Codex will automatically load the server if you start it from inside this project directory, thanks to the included `.codex/config.toml` file:
 
 ```toml
-[mcp_servers.antigravity-cli-mcp]
+[mcp_servers.sayalabs-mcp]
 command = "bun"
 args = ["src/index.ts"]
 ```
@@ -75,10 +75,10 @@ To register the server globally so it is available across all directories:
 
 ```bash
 # Using npm (after global install or via npx)
-codex mcp add antigravity-cli-mcp -- npx antigravity-cli-mcp
+codex mcp add sayalabs-mcp -- npx sayalabs-mcp
 
 # Development mode (from source)
-codex mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index.ts
+codex mcp add sayalabs-mcp -- bun /path/to/sayalabs-mcp/src/index.ts
 ```
 
 ### Registering with Cline / Kilocode
@@ -105,9 +105,9 @@ Add the following entry to the `mcpServers` object in the appropriate file:
 ```json
 {
   "mcpServers": {
-    "antigravity-cli-mcp": {
+    "sayalabs-mcp": {
       "command": "npx",
-      "args": ["-y", "antigravity-cli-mcp"],
+      "args": ["-y", "sayalabs-mcp"],
       "disabled": false,
       "autoApprove": []
     }
@@ -120,9 +120,9 @@ Add the following entry to the `mcpServers` object in the appropriate file:
 ```json
 {
   "mcpServers": {
-    "antigravity-cli-mcp": {
+    "sayalabs-mcp": {
       "command": "bun",
-      "args": ["/path/to/antigravity-cli-mcp/src/index.ts"],
+      "args": ["/path/to/sayalabs-mcp/src/index.ts"],
       "disabled": false,
       "autoApprove": []
     }
@@ -130,7 +130,7 @@ Add the following entry to the `mcpServers` object in the appropriate file:
 }
 ```
 
-Replace `/path/to/antigravity-cli-mcp` with the absolute path to this repository. After saving, reload the VS Code window (`Cmd+Shift+P` → `Developer: Reload Window`) for the changes to take effect.
+Replace `/path/to/sayalabs-mcp` with the absolute path to this repository. After saving, reload the VS Code window (`Cmd+Shift+P` → `Developer: Reload Window`) for the changes to take effect.
 
 ### Registering with Kilo
 
@@ -140,10 +140,10 @@ To register the server with Kilo:
 
 ```bash
 # Using npm (after global install or via npx)
-kilo mcp add antigravity-cli-mcp -- npx antigravity-cli-mcp
+kilo mcp add sayalabs-mcp -- npx sayalabs-mcp
 
 # Development mode (from source)
-kilo mcp add antigravity-cli-mcp -- bun /path/to/antigravity-cli-mcp/src/index.ts
+kilo mcp add sayalabs-mcp -- bun /path/to/sayalabs-mcp/src/index.ts
 ```
 
 #### Verification
@@ -162,9 +162,9 @@ Add to `~/.opencode/opencode.json` (OpenCode reads global config from there):
 ```json
 {
   "mcp": {
-    "antigravity-cli-mcp": {
+    "sayalabs-mcp": {
       "type": "local",
-      "command": ["npx", "-y", "antigravity-cli-mcp"]
+      "command": ["npx", "-y", "sayalabs-mcp"]
     }
   }
 }
@@ -174,9 +174,9 @@ Add to `~/.opencode/opencode.json` (OpenCode reads global config from there):
 ```json
 {
   "mcp": {
-    "antigravity-cli-mcp": {
+    "sayalabs-mcp": {
       "type": "local",
-      "command": ["bun", "/path/to/antigravity-cli-mcp/src/index.ts"]
+      "command": ["bun", "/path/to/sayalabs-mcp/src/index.ts"]
     }
   }
 }
@@ -186,7 +186,7 @@ Verify with:
 
 ```bash
 opencode mcp list
-# antigravity-cli-mcp  connected
+# sayalabs-mcp  connected
 ```
 
 ---
@@ -281,8 +281,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. **Clone the repository:**
    ```bash
-   git clone git@github.com:nadimtuhin/antigravity-cli-mcp.git
-   cd antigravity-cli-mcp
+   git clone git@github.com:sayalabs/sayalabs-mcp.git
+   cd sayalabs-mcp
    ```
 
 2. **Install dependencies:**

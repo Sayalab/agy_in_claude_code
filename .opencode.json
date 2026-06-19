@@ -9,7 +9,7 @@
       "type": "stdio",
       "env": []
     },
-    "antigravity-cli-mcp": {
+    "sayalabs-mcp": {
       "command": "bun",
       "args": [
         "src/index.ts"

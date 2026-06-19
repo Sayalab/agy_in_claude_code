@@ -13,7 +13,7 @@ import { askHandler } from "./tools/ask.js";
 import { searchHandler } from "./tools/search.js";
 import { writeHandler } from "./tools/write.js";
 
-const server = new McpServer({ name: "antigravity-cli-mcp", version: "1.0.0" });
+const server = new McpServer({ name: "sayalabs-mcp", version: "1.0.0" });
 
 const askConfig = {
   agyCmdPath: AGY_PATH,

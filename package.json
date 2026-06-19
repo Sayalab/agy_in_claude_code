@@ -1,10 +1,10 @@
 {
-  "name": "antigravity-cli-mcp",
+  "name": "sayalabs-mcp",
   "version": "1.0.0",
   "description": "MCP server wrapping the agy (antigravity) CLI — exposes ping, ask-agy, search-web, and write-file tools to any MCP client",
   "type": "module",
   "bin": {
-    "antigravity-cli-mcp": "dist/index.js"
+    "sayalabs-mcp": "dist/index.js"
   },
   "files": [
     "dist/index.js",
@@ -30,15 +30,15 @@
     "ai",
     "cli"
   ],
-  "author": "Nadim Tuhin <nadimtuhin@gmail.com>",
+  "author": "Sayalabs <info@sayalabs.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nadimtuhin/antigravity-cli-mcp.git"
+    "url": "git+https://github.com/sayalabs/sayalabs-mcp.git"
   },
-  "homepage": "https://github.com/nadimtuhin/antigravity-cli-mcp#readme",
+  "homepage": "https://github.com/sayalabs/sayalabs-mcp#readme",
   "bugs": {
-    "url": "https://github.com/nadimtuhin/antigravity-cli-mcp/issues"
+    "url": "https://github.com/sayalabs/sayalabs-mcp/issues"
   },
   "engines": {
     "bun": ">=1.0.0"
