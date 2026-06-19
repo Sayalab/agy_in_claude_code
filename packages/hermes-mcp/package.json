@@ -1,0 +1,43 @@
+{
+  "name": "hermes-cli-mcp",
+  "version": "1.0.1",
+  "description": "MCP server wrapping the Hermes Agent CLI — exposes ping, ask-hermes, search-web, and write-file tools to any MCP client",
+  "type": "module",
+  "bin": {
+    "hermes-cli-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist/index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target bun --outfile dist/index.js --banner \"#!/usr/bin/env bun\"",
+    "start": "bun run dist/index.js",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "hermes",
+    "ai",
+    "cli"
+  ],
+  "author": "Sayalabs <info@sayalabs.com>",
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "mcp-cli-core": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}
