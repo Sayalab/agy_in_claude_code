@@ -7,6 +7,10 @@
         "serve"
       ],
       "type": "stdio"
+    },
+    "agy": {
+      "command": "/Users/jarvis/.agy_in_claude_code/wrapper.sh",
+      "args": []
     }
   }
 }
