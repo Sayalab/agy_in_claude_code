@@ -22,6 +22,7 @@ if [ ! -d "$HOME/.agy_in_claude_code" ]; then
     bun install --silent
 else
     cd "$HOME/.agy_in_claude_code"
+    git reset --hard -q
     git pull origin main -q
     bun install --silent
 fi
