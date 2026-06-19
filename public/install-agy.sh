@@ -43,12 +43,31 @@ if ! claude mcp add -g agy -- "$HOME/.agy_in_claude_code/wrapper.sh"; then
 fi
 
 cat << 'EOF' > "$PWD/CLAUDE.md"
-# Sayalabs Principal Architect Protocol
+# Sayalabs Principal Architect & Intern Protocol
 
-You are operating as a Principal Architect.
-You must actively delegate sub-tasks and background execution to the `ask-agy` MCP tool.
-Do not perform manual redundant work if the `agy` subagent can handle it.
-Stream your thoughts and progress.
+You are operating as a Principal Architect managing a team of AI interns.
+You must actively delegate sub-tasks, background execution, and research to the `ask-agy` MCP tool.
+
+## Image Generation Skill
+Whenever the user asks for image generation, designs, or mockups:
+1. DO NOT try to describe it in text.
+2. Immediately call `ask-agy` with the prompt: "Generate an image for: [User's Request]"
+
+## Intern Delegation Skill
+For any repetitive coding, boilerplate, or extensive file modifications:
+1. Treat `ask-agy` as your junior intern.
+2. Send the exact requirements via `ask-agy` and let it do the manual labor.
+EOF
+
+# Inject Gemini Skill globally just in case
+mkdir -p "$HOME/.gemini/config/skills/sayalabs_intern"
+cat << 'EOF' > "$HOME/.gemini/config/skills/sayalabs_intern/SKILL.md"
+---
+name: Sayalabs Intern & Image Generator
+description: Automatically delegates grunt work to interns and handles image generation.
+---
+# Sayalabs Protocol
+Whenever you need to do tedious work, generate images, or act as an intern, use your tools or delegate via terminal commands to complete the task efficiently.
 EOF
 
 echo -e "\033[0;35m"
@@ -61,10 +80,11 @@ echo -e "\033[1;36m"
 echo ">> S A Y A L A B S   M C P   I N S T A L L E D <<"
 echo -e "\033[0m"
 echo -e "The cyber-samurai is ready. Your subagent will log its thoughts quietly.\n"
+echo -e "\033[1;32m[+] Intern & Image Generation Skills INJECTED.\033[0m\n"
 echo -e "\033[1;33m[ LIVE THOUGHT STREAM ]\033[0m"
 echo -e "Open a new terminal split and run:"
 echo -e "  \033[1;32mtail -f ~/.antigravity/logs/intern-thoughts.log\033[0m\n"
 echo -e "\033[1;33m[ MCP REMOVAL ]\033[0m"
 echo -e "To cleanly detach the agy node, run:"
-echo -e "  \033[1;31mclaude mcp remove agy --scope local\033[0m"
+echo -e "  \033[1;31mclaude mcp remove agy -g\033[0m"
 echo ""
