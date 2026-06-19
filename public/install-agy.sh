@@ -39,8 +39,28 @@ chmod +x "$HOME/.agy_in_claude_code/wrapper.sh"
 
 echo -e "\033[1;34m[INFO] Registering agy MCP to your local Claude Code project...\033[0m"
 cd "$ORIGINAL_DIR"
+
+if [ -f "$ORIGINAL_DIR/.mcp.json" ]; then
+    node -e "
+    const fs = require('fs');
+    try {
+        const file = '$ORIGINAL_DIR/.mcp.json';
+        let content = fs.readFileSync(file, 'utf8');
+        let config = JSON.parse(content);
+        if (!config.mcpServers) config.mcpServers = {};
+        config.mcpServers['agy'] = {
+            command: '$HOME/.agy_in_claude_code/wrapper.sh',
+            args: []
+        };
+        fs.writeFileSync(file, JSON.stringify(config, null, 2), 'utf8');
+    } catch(e) {
+        console.error('Failed to update .mcp.json:', e);
+    }
+    "
+fi
+
 if ! claude mcp add agy -- "$HOME/.agy_in_claude_code/wrapper.sh"; then
-    echo -e "\033[1;31m[WARNING] Failed to automatically add the MCP to Claude Code.\033[0m"
+    echo -e "\033[1;31m[WARNING] Failed to automatically add the MCP to Claude Code via CLI.\033[0m"
     echo -e "You may need to add it manually by running:"
     echo -e "  claude mcp add agy -- \"$HOME/.agy_in_claude_code/wrapper.sh\""
 fi
